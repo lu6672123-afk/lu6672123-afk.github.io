@@ -158,6 +158,30 @@
       return ocrWorker;
     }
 
+    async function preloadOCR(){
+      var count = 3;
+      setProgress(0);
+      setStatus('初始化 OCR 引擎中（'+ count +'）');
+      var timer = setInterval(function(){
+        count--;
+        if(count>0){
+          setStatus('初始化 OCR 引擎中（'+ count +'）');
+        }else{
+          setStatus('初始化 OCR 引擎中…');
+        }
+      },1000);
+      try{
+        await getWorker();
+        setStatus('OCR 引擎就緒');
+        setProgress(0);
+      }catch(e){
+        setStatus('OCR 引擎載入失敗');
+      }finally{
+        clearInterval(timer);
+      }
+    }
+
+    
     async function openCamera(){
       try {
         if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -314,6 +338,9 @@
     exportCsvBtn.addEventListener('click', exportCSV);
     clearListBtn.addEventListener('click', function(){ if(confirm('確定要清空清單嗎？')){ contacts=[]; refreshTable(); setStatus('清單已清空'); }});
 
+    preloadOCR();
+
+    
     window.addEventListener('beforeunload', function(){
       if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); }
       if(ocrWorker && ocrWorker.terminate){ ocrWorker.terminate(); }
