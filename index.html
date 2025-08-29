@@ -341,8 +341,8 @@ async function runDiag(){
 
   // 檢查腳本與語言檔（fast）
   await ping('https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js', 'tesseract.min.js');
-  await ping('https://tessdata.projectnaptha.com/5.0.0_fast/eng.traineddata.gz', 'eng.traineddata.gz');
-  await ping('https://tessdata.projectnaptha.com/5.0.0_fast/chi_tra.traineddata.gz', 'chi_tra.traineddata.gz');
+  await ping('https://tessdata.projectnaptha.com/4.0.0_fast/eng.traineddata.gz', 'eng.traineddata.gz');
+  await ping('https://tessdata.projectnaptha.com/4.0.0_fast/chi_tra.traineddata.gz', 'chi_tra.traineddata.gz');
 
   log('--- 若以上任一項不是 200 OK，代表 CDN 被擋或網路異常。---');
 }
