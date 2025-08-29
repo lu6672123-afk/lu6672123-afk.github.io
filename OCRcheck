@@ -1,0 +1,5 @@
+<script>
+window.addEventListener('load', () => {
+  console.log(window.Tesseract ? 'Tesseract.js 已載入' : 'Tesseract.js 載入失敗');
+});
+</script>
