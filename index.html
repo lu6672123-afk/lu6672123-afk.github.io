@@ -23,6 +23,7 @@
     button:disabled { opacity:.6; cursor:not-allowed; }
     input[type="file"]{ display:none; }
     label.file { border:1px dashed #384055; padding:10px 14px; border-radius:12px; color:#cfd7e6; cursor:pointer; }
+    label.file.disabled { opacity:.6; pointer-events:none; cursor:not-allowed; }
     video, canvas, img { width: 100%; border-radius: 14px; border:1px solid #252a39; background: #0c0f15; }
     .hint { font-size: 12px; color: var(--muted); }
     .field { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px dashed #2a2f3f; }
@@ -123,6 +124,7 @@
     var preview = document.getElementById('preview');
     var openCamBtn = document.getElementById('openCam');
     var fileInput = document.getElementById('fileInput');
+    var fileLabel = document.querySelector('label.file');
     var progressBar = document.getElementById('progressBar');
     var statusEl = document.getElementById('status');
     var autoMode = document.getElementById('autoMode');
@@ -133,7 +135,12 @@
     var emailEl = document.getElementById('email');
     var phoneEl = document.getElementById('phone');
     var rawEl = document.getElementById('raw');
-
+    
+    // Disable camera and album until OCR is ready
+    openCamBtn.disabled = true;
+    fileInput.disabled = true;
+    if(fileLabel) fileLabel.classList.add('disabled');
+    
     var addToListBtn = document.getElementById('addToList');
     var clearFieldsBtn = document.getElementById('clearFields');
 
@@ -175,18 +182,19 @@
           getWorker(),
           new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('timeout')); }, timeoutMs); })
         ]);
-        setStatus('OCR 引擎就緒');
+        setStatus('載入 OCR 成功，請開始使用相機或相簿');
         setProgress(0);
+        openCamBtn.disabled = false;
+        fileInput.disabled = false;
+        if(fileLabel) fileLabel.classList.remove('disabled');
       }catch(e){
-        if(e.message==='timeout'){
-          setStatus('OCR 引擎初始化超時');
-        }else{
-          setStatus('OCR 引擎載入失敗');
-        }
+        console.error(e);
+        setStatus('OCR 引擎載入失敗：' + (e && e.message ? e.message : e));
       }finally{
         clearInterval(timer);
       }
     }
+
 
 
     
