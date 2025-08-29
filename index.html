@@ -354,7 +354,7 @@
     exportCsvBtn.addEventListener('click', exportCSV);
     clearListBtn.addEventListener('click', function(){ if(confirm('確定要清空清單嗎？')){ contacts=[]; refreshTable(); setStatus('清單已清空'); }});
 
-    preloadOCR(10000);
+    preloadOCR(30000);
 
     
     window.addEventListener('beforeunload', function(){
