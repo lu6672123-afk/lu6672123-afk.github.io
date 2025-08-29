@@ -47,6 +47,19 @@
   <header>
     <h1>名片掃描器 · Web（多筆蒐集 → Excel 匯出）</h1>
   </header>
+  <section class="card" style="margin-top:16px">
+  <div class="inner">
+    <h2>診斷工具（找出為何預載 OCR 逾時）</h2>
+    <div class="row" style="margin-bottom:8px">
+      <button id="runDiag" class="ghost">一鍵檢查 CDN 與權限</button>
+    </div>
+    <pre id="diagOut"
+         style="background:#0a0d14;border:1px solid #2b3145;border-radius:12px;
+                padding:12px;white-space:pre-wrap;max-height:240px;overflow:auto"></pre>
+    <div class="hint">結果會顯示：是否 HTTPS、Tesseract 腳本是否載入、語言檔（eng/chi_tra fast）
+      是否能取回，以及耗時。</div>
+  </div>
+</section>
   <main>
     <div class="grid">
       <section class="card" id="cameraCard">
@@ -356,6 +369,45 @@
 
     preloadOCR(300000);
 
+    const diagOut = document.getElementById('diagOut');
+const runDiagBtn = document.getElementById('runDiag');
+
+function log(msg){
+  if(diagOut){
+    diagOut.textContent += msg + '\n';
+    diagOut.scrollTop = diagOut.scrollHeight;
+  }
+}
+
+async function ping(url, label){
+  const t0 = performance.now();
+  try{
+    const r = await fetch(url + (url.includes('?')?'&':'?') + 't=' + Date.now(), { cache:'no-store' });
+    const ms = Math.round(performance.now() - t0);
+    log(`${label}: ${r.status} ${r.ok ? 'OK' : 'NG'}  ${ms}ms`);
+  }catch(e){
+    const ms = Math.round(performance.now() - t0);
+    log(`${label}: ERROR ${e.name||''} ${e.message||''}  ${ms}ms`);
+  }
+}
+
+async function runDiag(){
+  if(!diagOut) return;
+  diagOut.textContent = '';
+  log('== Quick Diagnostics ==');
+  log('protocol: ' + location.protocol + '  secure:' + (window.isSecureContext?'yes':'NO'));
+  log('online: ' + (navigator.onLine?'yes':'NO') + '  ua: ' + navigator.userAgent);
+  log('Tesseract loaded: ' + (!!window.Tesseract));
+
+  // 檢查腳本與語言檔（fast）
+  await ping('https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js', 'tesseract.min.js');
+  await ping('https://tessdata.projectnaptha.com/5.0.0_fast/eng.traineddata.gz', 'eng.traineddata.gz');
+  await ping('https://tessdata.projectnaptha.com/5.0.0_fast/chi_tra.traineddata.gz', 'chi_tra.traineddata.gz');
+
+  log('--- 若以上任一項不是 200 OK，代表 CDN 被擋或網路異常。---');
+}
+
+if(runDiagBtn){ runDiagBtn.addEventListener('click', runDiag); }
     
     window.addEventListener('beforeunload', function(){
       if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); }
