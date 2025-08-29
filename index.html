@@ -1,94 +1,409 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>名片掃描器｜多筆蒐集＋Excel 匯出</title>
-<style>
-:root { --bg:#0b0c10; --card:#15171c; --ink:#e9eef5; --muted:#9aa3b2; --accent:#42b883; }
-* { box-sizing: border-box; }
-body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--ink); background: radial-gradient(1000px 700px at 70% -10%, #1b1f28 0%, var(--bg) 60%); }
-header { position: sticky; top: 0; backdrop-filter: saturate(180%) blur(8px); background: rgba(13,14,18,.6); border-bottom: 1px solid #222531; padding: 12px 16px; z-index: 10; }
-header h1 { margin: 0; font-size: 18px; letter-spacing: .5px; }
-main { padding: 16px; max-width: 1100px; margin: 0 auto; }
-.grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 1100px){ .grid { grid-template-columns: 5fr 4fr; } }
-.card { background: var(--card); border:1px solid #232633; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
-.card h2 { margin:0 0 8px 0; font-size: 16px; color: #dfe6f3; letter-spacing: .4px; }
-.card .inner { padding: 14px; }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-button, .ghost { appearance: none; cursor: pointer; border-radius: 12px; border:1px solid #30364a; padding: 10px 14px; color: var(--ink); background: #1a1f2b; font-weight: 600; }
-button.primary { background: linear-gradient(180deg, #49c38a, #2ea36f); border-color:#2a9a68; color:#07110c; box-shadow: 0 6px 20px rgba(66,184,131,.35); }
-button.warn { background: linear-gradient(180deg, #f5a623, #e68a00); border-color:#cf7a00; color:#0c0901; }
-button:disabled { opacity:.6; cursor:not-allowed; }
-input[type="file"]{ display:none; }
-label.file { border:1px dashed #384055; padding:10px 14px; border-radius:12px; color:#cfd7e6; cursor:pointer; }
-video, canvas, img { width: 100%; border-radius: 14px; border:1px solid #252a39; background: #0c0f15; }
-.hint { font-size: 12px; color: var(--muted); }
-.field { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px dashed #2a2f3f; }
-.field:last-child{ border-bottom: none; }
-.key { color: #aeb8cb; font-size: 12px; text-transform: uppercase; letter-spacing:.8px; }
-.val input, .val textarea { width: 100%; background: #0f121a; border:1px solid #2c3242; color:#e5ecfb; padding:10px 12px; border-radius:10px; font-size:14px; }
-textarea { min-height: 86px; }
-.progress { height: 10px; background:#12151e; border-radius: 999px; border:1px solid #262c3e; overflow: hidden; }
-.bar { height: 100%; width: 0%; background: linear-gradient(90deg, #49c38a, #75e0b0); transition: width .2s ease; }
-.pill { display:inline-flex; gap:8px; align-items:center; background:#111520; border:1px solid #2a3143; padding:8px 10px; border-radius:999px; font-size:12px; color:#bbc6da; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; }
-table { width:100%; border-collapse: collapse; border:1px solid #2b3145; }
-th, td { border-bottom:1px dashed #2b3145; padding:10px; text-align: left; font-size: 13px; }
-th { color:#cfe0ff; font-weight:700; background:#0f1320; position: sticky; top:0; }
-.count { font-size: 12px; color:#9fb0cc }
-.status { font-size:12px; color:#9fb0cc }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>名片掃描器｜多筆蒐集＋Excel 匯出</title>
+  <style>
+    :root { --bg:#0b0c10; --card:#15171c; --ink:#e9eef5; --muted:#9aa3b2; --accent:#42b883; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--ink); background: radial-gradient(1000px 700px at 70% -10%, #1b1f28 0%, var(--bg) 60%); }
+    header { position: sticky; top: 0; backdrop-filter: saturate(180%) blur(8px); background: rgba(13,14,18,.6); border-bottom: 1px solid #222531; padding: 12px 16px; z-index: 10; }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: .5px; }
+    main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 1100px){ .grid { grid-template-columns: 5fr 4fr; } }
+    .card { background: var(--card); border:1px solid #232633; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+    .card h2 { margin:0 0 8px 0; font-size: 16px; color: #dfe6f3; letter-spacing: .4px; }
+    .card .inner { padding: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button, .ghost { appearance: none; cursor: pointer; border-radius: 12px; border:1px solid #30364a; padding: 10px 14px; color: var(--ink); background: #1a1f2b; font-weight: 600; }
+    button.primary { background: linear-gradient(180deg, #49c38a, #2ea36f); border-color:#2a9a68; color:#07110c; box-shadow: 0 6px 20px rgba(66,184,131,.35); }
+    button.warn { background: linear-gradient(180deg, #f5a623, #e68a00); border-color:#cf7a00; color:#0c0901; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    input[type="file"]{ display:none; }
+    label.file { border:1px dashed #384055; padding:10px 14px; border-radius:12px; color:#cfd7e6; cursor:pointer; }
+    video, canvas, img { width: 100%; border-radius: 14px; border:1px solid #252a39; background: #0c0f15; }
+    .hint { font-size: 12px; color: var(--muted); }
+    .field { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px dashed #2a2f3f; }
+    .field:last-child{ border-bottom: none; }
+    .key { color: #aeb8cb; font-size: 12px; text-transform: uppercase; letter-spacing:.8px; }
+    .val input, .val textarea { width: 100%; background: #0f121a; border:1px solid #2c3242; color:#e5ecfb; padding:10px 12px; border-radius:10px; font-size:14px; }
+    textarea { min-height: 86px; }
+    .progress { height: 10px; background:#12151e; border-radius: 999px; border:1px solid #262c3e; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #49c38a, #75e0b0); transition: width .2s ease; }
+    .pill { display:inline-flex; gap:8px; align-items:center; background:#111520; border:1px solid #2a3143; padding:8px 10px; border-radius:999px; font-size:12px; color:#bbc6da; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; }
+    table { width:100%; border-collapse: collapse; border:1px solid #2b3145; }
+    th, td { border-bottom:1px dashed #2b3145; padding:10px; text-align: left; font-size: 13px; }
+    th { color:#cfe0ff; font-weight:700; background:#0f1320; position: sticky; top:0; }
+    .count { font-size: 12px; color:#9fb0cc }
+    .status { font-size:12px; color:#9fb0cc }
+  </style>
 </head>
 <body>
-<header>
-<h1>名片掃描器 · Web（多筆蒐集 → Excel 匯出）</h1>
-</header>
-<main>
-<div class="grid">
-<section class="card" id="cameraCard">
-<div class="inner">
-<h2>1) 取景或上傳名片</h2>
-<div class="row" style="margin-bottom:8px">
-<button id="openCam" class="ghost">開啟相機</button>
-<button id="snap" class="primary" disabled>拍照並辨識<\/button>
-<button id="resetCam" class="ghost">重置相機<\/button>
-<label class="file">
-<input type="file" accept="image/*" capture="environment" id="fileInput" />從相簿/相機上傳
-</label>
-<span class="hint">iPhone 需用 <b>HTTPS</b> 或 <b>localhost</b> 才能開相機；私密瀏覽可能會擋權限。</span>
-</div>
-<video id="video" playsinline autoplay muted><\/video>
-<div class="status" id="status">狀態：待機<\/div>
-<canvas id="canvas" style="display:none"></canvas>
-<img id="preview" alt="預覽" style="display:none"/>
-<div class="row" style="margin-top:8px">
-<span class="pill">OCR：<span class="mono">eng+chi_tra（fast）</span></span>
-<span class="pill">模式：<span class="mono">本機瀏覽器</span></span>
-</div>
-<div class="progress" style="margin-top:8px"><div class="bar" id="progressBar"></div></div>
-<div class="hint" style="margin-top:6px">小技巧：把名片放平、光線充足，盡量填滿畫面；失敗就改用相簿上傳。</div>
-</div>
-</section>
+  <header>
+    <h1>名片掃描器 · Web（多筆蒐集 → Excel 匯出）</h1>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card" id="cameraCard">
+        <div class="inner">
+          <h2>1) 取景或上傳名片</h2>
+          <div class="row" style="margin-bottom:8px">
+            <button id="openCam" class="ghost">開啟相機</button>
+            <button id="snap" class="primary" disabled>拍照並辨識<\/button>
+            <button id="resetCam" class="ghost">重置相機<\/button>
+            <label class="file">
+              <input type="file" accept="image/*" capture="environment" id="fileInput" />從相簿/相機上傳
+            </label>
+            <span class="hint">iPhone 需用 <b>HTTPS</b> 或 <b>localhost</b> 才能開相機；私密瀏覽可能會擋權限。</span>
+          </div>
+          <video id="video" playsinline autoplay muted><\/video>
+          <div class="status" id="status">狀態：待機<\/div>
+          <canvas id="canvas" style="display:none"></canvas>
+          <img id="preview" alt="預覽" style="display:none"/>
+          <div class="row" style="margin-top:8px">
+            <span class="pill">OCR：<span class="mono">eng+chi_tra（fast）</span></span>
+            <span class="pill">模式：<span class="mono">本機瀏覽器</span></span>
+          </div>
+          <div class="progress" style="margin-top:8px"><div class="bar" id="progressBar"></div></div>
+          <div class="hint" style="margin-top:6px">小技巧：把名片放平、光線充足，盡量填滿畫面；失敗就改用相簿上傳。</div>
+        </div>
+      </section>
 
+      <section class="card">
+        <div class="inner">
+          <h2>2) 本張結果（確認後加入清單）</h2>
+          <div class="field"><div class="key">姓名</div><div class="val"><input id="name" placeholder="例：王小明 / Anita Yao"/></div></div>
+          <div class="field"><div class="key">職稱</div><div class="val"><input id="title" placeholder="例：設計師 / Marketing Manager"/></div></div>
+          <div class="field"><div class="key">公司</div><div class="val"><input id="company" placeholder="例：矩設計股份有限公司"/></div></div>
+          <div class="field"><div class="key">Email</div><div class="val"><input id="email" placeholder="name@example.com"/></div></div>
+          <div class="field"><div class="key">電話</div><div class="val"><input id="phone" placeholder="例：0912-345-678 / (03)1234-5678#123"/></div></div>
+          <div class="field"><div class="key">原始文字</div><div class="val"><textarea id="raw" placeholder="OCR 原始文字顯示在此，方便核對。"></textarea></div></div>
 
-<section class="card">
-<div class="inner">
-<h2>2) 本張結果（確認後加入清單）</h2>
-<div class="field"><div class="key">姓名</div><div class="val"><input id="name" placeholder="例：王小明 / Anita Yao"/></div></div>
-<div class="field"><div class="key">職稱</div><div class="val"><input id="title" placeholder="例：設計師 / Marketing Manager"/></div></div>
-<div class="field"><div class="key">公司</div><div class="val"><input id="company" placeholder="例：矩設計股份有限公司"/></div></div>
-<div class="field"><div class="key">Email</div><div class="val"><input id="email" placeholder="name@example.com"/></div></div>
-<div class="field"><div class="key">電話</div><div class="val"><input id="phone" placeholder="例：0912-345-678 / (03)1234-5678#123"/></div></div>
-<div class="field"><div class="key">原始文字</div><div class="val"><textarea id="raw" placeholder="OCR 原始文字顯示在此，方便核對。"></textarea></div></div>
+          <div class="row" style="margin-top:10px">
+            <button id="addToList" class="primary">加入清單</button>
+            <button id="clearFields" class="ghost">清空此張</button>
+          </div>
+          <div class="hint">流程：辨識 → 修正 → 加入清單。重複多張後再「全部完成」匯出 Excel。</div>
+        </div>
+      </section>
+    </div>
 
+    <section class="card" style="margin-top:16px">
+      <div class="inner">
+        <h2>3) 清單預覽 <span class="count" id="count"></span></h2>
+        <div class="row" style="margin-bottom:8px">
+          <button id="exportXlsx" class="primary" disabled>全部完成 → 匯出 Excel</button>
+          <button id="exportCsv" class="ghost" disabled>匯出 CSV</button>
+          <button id="clearList" class="warn" disabled>清空清單</button>
+        </div>
+        <div style="max-height: 40vh; overflow:auto; border:1px solid #2b3145; border-radius:12px">
+          <table id="listTable">
+            <thead>
+              <tr><th>#</th><th>姓名</th><th>職稱</th><th>公司</th><th>Email</th><th>電話</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<div class="row" style="margin-top:10px">
-<button id="addToList" class="primary">加入清單</button>
-<button id="clearFields" class="ghost">清空此張</button>
-</div>
-<div class="hint">流程：辨識 → 修正 → 加入清單。重複多張後再「全部完成」匯出 Excel。</div>
-</div>
-</section>
-</div>
+  <!-- 外部函式庫：改用 jsDelivr，提高載入穩定度 -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+    const openCamBtn = document.getElementById('openCam');
+    const snapBtn = document.getElementById('snap');
+    const fileInput = document.getElementById('fileInput');
+    const progressBar = document.getElementById('progressBar');
+    const statusEl = document.getElementById('status');
+    function setStatus(txt){ if(statusEl) statusEl.textContent = '狀態：' + txt; }
+
+    const nameEl = document.getElementById('name');
+    const titleEl = document.getElementById('title');
+    const companyEl = document.getElementById('company');
+    const emailEl = document.getElementById('email');
+    const phoneEl = document.getElementById('phone');
+    const rawEl = document.getElementById('raw');
+
+    const addToListBtn = document.getElementById('addToList');
+    const clearFieldsBtn = document.getElementById('clearFields');
+
+    const exportXlsxBtn = document.getElementById('exportXlsx');
+    const exportCsvBtn = document.getElementById('exportCsv');
+    const clearListBtn = document.getElementById('clearList');
+
+    const listTableBody = document.querySelector('#listTable tbody');
+    const countLabel = document.getElementById('count');
+
+    let stream; let contacts = [];
+
+// === Reusable Tesseract worker (fast model) ===
+let workerPromise = null;
+async function getWorker(){
+  if(!workerPromise){
+    const { createWorker } = Tesseract;
+    workerPromise = (async ()=>{
+      const w = await createWorker({
+        logger: m => { if(m && m.progress != null) setProgress(m.progress); },
+        langPath: 'https://tessdata.projectnaptha.com/5.0.0_fast'
+      });
+      await w.loadLanguage('eng+chi_tra');
+      await w.initialize('eng+chi_tra');
+      return w;
+    })();
+  }
+  return workerPromise;
+}
+
+    function setProgress(p){ progressBar.style.width = `${Math.max(0, Math.min(1,p))*100}%`; }
+
+    async function openCamera(){
+      try {
+        if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+          alert('此瀏覽器不支援相機 API，請改用相簿上傳。');
+          return;
+        }
+        if(!isSecureContext){
+          alert('此頁面不是 HTTPS，iPhone 會擋相機。請改用 https:// 或 localhost。');
+          return;
+        }
+        setStatus('請求相機權限…');
+        if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+        const base = { width:{ideal:1920}, height:{ideal:1080} };
+        let constraints = { video: { ...base, facingMode: { ideal: 'environment' } }, audio: false };
+        try{
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch(e1){
+          // 後鏡頭失敗 → 試前鏡頭
+          constraints.video.facingMode = 'user';
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        }
+        video.srcObject = stream;
+        await video.play().catch(()=>{}); // iOS 需要
+        setStatus('相機已開啟');
+        // 預載 OCR（邊取景先載字庫）
+        if (typeof getWorker === 'function') { getWorker().catch(()=>{}); }
+        snapBtn.disabled = true === false ? false : false; // 保持啟用
+        snapBtn.disabled = false;
+      } catch(err){
+        setStatus('開啟失敗');
+        alert('無法開啟相機：' + (err.name||'') + ' - ' + (err.message||'') + '
+
+排查：
+1) 設定 > Safari > 相機 > 允許
+2) 不要用私密瀏覽/內容封鎖
+3) 網址必須是 HTTPS 或 localhost
+4) 設定 > Safari > 進階 > 網站資料，清掉 github.io 權限後再試');
+      }
+    }
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+        video.srcObject = stream;
+        snapBtn.disabled = false;
+        // 預載 OCR（邊取景邊下載字庫，第一次拍就不會卡）
+        getWorker().catch(()=>{});
+      } catch(err){
+        alert('無法開啟相機：' + err.message + '\n建議：到 Safari 設定允許相機，或改用「從相簿上傳」。');
+      }
+    }
+
+    function captureFromVideo(){
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if(!vw || !vh){ alert('相機尚未就緒，請稍後再試。'); return; }
+      const targetW = Math.min(1600, vw), scale = targetW / vw, targetH = Math.round(vh * scale);
+      canvas.width = targetW; canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, targetW, targetH);
+      const img = ctx.getImageData(0, 0, targetW, targetH);
+      const d = img.data;
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i], g=d[i+1], b=d[i+2];
+        let y = 0.299*r + 0.587*g + 0.114*b; // 灰階
+        y = Math.min(255, Math.max(0, (y-128)*1.2 + 128)); // 對比
+        d[i]=d[i+1]=d[i+2]=y;
+      }
+      ctx.putImageData(img,0,0);
+      const dataURL = canvas.toDataURL('image/jpeg', 0.92);
+      preview.src = dataURL; preview.style.display = 'block';
+      return dataURL;
+    }
+
+    function readAsDataURL(file){
+      return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); });
+    }
+
+    async function doOCR(dataURL){
+  setProgress(0.02);
+  const w = await getWorker();
+  const { data } = await w.recognize(dataURL);
+  setProgress(1);
+  return data.text || '';
+} = Tesseract;
+      const worker = await createWorker({ logger: m => { if(m.progress){ setProgress(m.progress); } } });
+      try {
+        await worker.loadLanguage('eng+chi_tra');
+        await worker.initialize('eng+chi_tra');
+        const { data } = await worker.recognize(dataURL);
+        await worker.terminate();
+        setProgress(1);
+        return data.text || '';
+      } catch (e){
+        await worker.terminate();
+        throw e;
+      }
+    }
+
+    function extractFields(text){
+      const lines = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+
+      const emailMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+      const email = emailMatch ? emailMatch[0] : '';
+
+      const phoneMatch = text.match(/(?:\+?886[-\s]?)?0?9\d{2}[-\s]?\d{3}[-\s]?\d{3}|(?:\+?886[-\s]?)?0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{3,4}(?:\s*(?:#|ext\.?|分機)\s*\d+)?/i);
+      const phone = phoneMatch ? phoneMatch[0] : '';
+
+      const companyKeywords = /(股份有限公司|有限公司|設計|空間|室內|建築|科技|行銷|工作室|Studio|Design|Inc\.|Inc|Company|Co\.|Ltd\.|Ltd)/i;
+      let company = lines.find(l=>companyKeywords.test(l)) || '';
+
+      const titleKeywords = /(董事長|總經理|副總|協理|經理|主任|專員|部長|組長|設計師|工程師|行銷|銷售|業務|顧問|執行長|創辦人|負責人|Director|Manager|Lead|Principal|Designer|Engineer|Consultant|Sales|Marketing|CEO|COO|CTO|Founder|Owner)/i;
+      let title = lines.find(l=>titleKeywords.test(l)) || '';
+
+      let name = '';
+      const cjkName = lines.find(l=>/^[\u4E00-\u9FFF]{2,4}(?:\s*[\(（].*[\)）])?$/.test(l) && !titleKeywords.test(l) && !companyKeywords.test(l));
+      if (cjkName) name = cjkName.match(/[\u4E00-\u9FFF]{2,4}/)?.[0] || '';
+      if (!name){
+        const enName = lines.find(l=>/^[A-Z][a-z]+(?:\s[A-Z][a-z]+)+$/.test(l));
+        if (enName) name = enName;
+      }
+
+      return { name, title, company, email, phone, raw:text.trim() };
+    }
+
+    function fillFields({name, title, company, email, phone, raw}){
+      nameEl.value = name || nameEl.value;
+      titleEl.value = title || titleEl.value;
+      companyEl.value = company || companyEl.value;
+      emailEl.value = email || emailEl.value;
+      phoneEl.value = phone || phoneEl.value;
+      rawEl.value = raw || rawEl.value;
+    }
+
+    function getCurrentRecord(){
+      return {
+        姓名: nameEl.value.trim(),
+        職稱: titleEl.value.trim(),
+        公司: companyEl.value.trim(),
+        Email: emailEl.value.trim(),
+        電話: phoneEl.value.trim(),
+      };
+    }
+
+    function refreshTable(){
+      listTableBody.innerHTML='';
+      contacts.forEach((c, i)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${c.姓名||''}</td><td>${c.職稱||''}</td><td>${c.公司||''}</td><td>${c.Email||''}</td><td>${c.電話||''}</td>`;
+        listTableBody.appendChild(tr);
+      });
+      countLabel.textContent = `（共 ${contacts.length} 筆）`;
+      const enabled = contacts.length>0;
+      exportXlsxBtn.disabled = !enabled;
+      exportCsvBtn.disabled = !enabled;
+      clearListBtn.disabled = !enabled;
+    }
+
+    function clearFields(){
+      [nameEl, titleEl, companyEl, emailEl, phoneEl].forEach(el=>el.value='');
+      rawEl.value='';
+    }
+
+    function toCSV(rows){
+      const header = ['姓名','職稱','公司','Email','電話'];
+      const lines = [header.join(',')].concat(rows.map(r=>header.map(h=>`"${(r[h]||'').replace(/\"/g,'\"\"')}"`).join(',')));
+      return lines.join('\n');
+    }
+
+    function exportExcel(){
+      const ws = XLSX.utils.json_to_sheet(contacts);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Contacts');
+      XLSX.writeFile(wb, `名片清單_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function exportCSV(){
+      const blob = new Blob([toCSV(contacts)], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `名片清單_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+    }
+
+    openCamBtn.addEventListener('click', openCamera);
+
+    const resetCamBtn = document.getElementById('resetCam');
+    if(resetCamBtn){
+      resetCamBtn.addEventListener('click', async ()=>{
+        if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+        await openCamera();
+      });
+    }
+
+    snapBtn.addEventListener('click', async () => {
+      setProgress(0);
+      snapBtn.disabled = true;
+      try {
+        const img = captureFromVideo();
+        if(!img) return;
+        const text = await doOCR(img);
+        fillFields(extractFields(text));
+      } catch(e){
+        alert('辨識失敗：' + e.message + '\n建議改為「從相簿上傳」或在更明亮環境重試。');
+      } finally {
+        snapBtn.disabled = false;
+      }
+    });
+
+    fileInput.addEventListener('change', async (e)=>{
+      const file = e.target.files?.[0];
+      if(!file) return;
+      setProgress(0);
+      preview.src = '';
+      preview.style.display='none';
+      try {
+        const dataURL = await readAsDataURL(file);
+        preview.src = dataURL; preview.style.display='block';
+        const text = await doOCR(dataURL);
+        fillFields(extractFields(text));
+      } catch(e){
+        alert('辨識失敗：' + e.message);
+      }
+    });
+
+    addToListBtn.addEventListener('click', ()=>{
+      const rec = getCurrentRecord();
+      const empty = Object.values(rec).every(v=>!v);
+      if(empty){ alert('目前資料是空的，請先辨識或輸入。'); return; }
+      contacts.push(rec);
+      refreshTable();
+      clearFields();
+    });
+
+    clearFieldsBtn.addEventListener('click', clearFields);
+    exportXlsxBtn.addEventListener('click', exportExcel);
+    exportCsvBtn.addEventListener('click', exportCSV);
+    clearListBtn.addEventListener('click', ()=>{ if(confirm('確定要清空清單嗎？')){ contacts=[]; refreshTable(); }});
+
+    window.addEventListener('beforeunload', async () => { 
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); }
+      try{ const w = await Promise.resolve(workerPromise); if(w && w.terminate) await w.terminate(); }catch(e){}
+    }); } });
+  </script>
+</body>
+</html>
