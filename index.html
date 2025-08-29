@@ -158,7 +158,7 @@
       return ocrWorker;
     }
 
-    async function preloadOCR(){
+    async function preloadOCR(timeoutMs=15000){
       var count = 3;
       setProgress(0);
       setStatus('初始化 OCR 引擎中（'+ count +'）');
@@ -171,15 +171,23 @@
         }
       },1000);
       try{
-        await getWorker();
+        await Promise.race([
+          getWorker(),
+          new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('timeout')); }, timeoutMs); })
+        ]);
         setStatus('OCR 引擎就緒');
         setProgress(0);
       }catch(e){
-        setStatus('OCR 引擎載入失敗');
+        if(e.message==='timeout'){
+          setStatus('OCR 引擎初始化超時');
+        }else{
+          setStatus('OCR 引擎載入失敗');
+        }
       }finally{
         clearInterval(timer);
       }
     }
+
 
     
     async function openCamera(){
@@ -338,7 +346,7 @@
     exportCsvBtn.addEventListener('click', exportCSV);
     clearListBtn.addEventListener('click', function(){ if(confirm('確定要清空清單嗎？')){ contacts=[]; refreshTable(); setStatus('清單已清空'); }});
 
-    preloadOCR();
+    preloadOCR(10000);
 
     
     window.addEventListener('beforeunload', function(){
