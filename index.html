@@ -443,7 +443,7 @@ async function getWorker(){
         const ms = Math.round(performance.now()-t0);
         log(`${label}: ERROR ${e.name||''} ${e.message||''}  ${ms}ms`);
       }
-    }
+    } 
 
     async function runDiag(){
       if(!diagOut) return;
