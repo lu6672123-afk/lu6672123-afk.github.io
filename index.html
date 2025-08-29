@@ -1,69 +1,246 @@
++42
+-1
+
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>名片掃描器｜多筆蒐集＋Excel 匯出</title>
-<style>
-:root { --bg:#0b0c10; --card:#15171c; --ink:#e9eef5; --muted:#9aa3b2; --accent:#42b883; }
-* { box-sizing: border-box; }
-body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--ink); background: radial-gradient(1000px 700px at 70% -10%, #1b1f28 0%, var(--bg) 60%); }
-header { position: sticky; top: 0; backdrop-filter: saturate(180%) blur(8px); background: rgba(13,14,18,.6); border-bottom: 1px solid #222531; padding: 12px 16px; z-index: 10; }
-header h1 { margin: 0; font-size: 18px; letter-spacing: .5px; }
-main { padding: 16px; max-width: 1100px; margin: 0 auto; }
-.grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 1100px){ .grid { grid-template-columns: 5fr 4fr; } }
-.card { background: var(--card); border:1px solid #232633; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
-.card h2 { margin:0 0 8px 0; font-size: 16px; color: #dfe6f3; letter-spacing: .4px; }
-.card .inner { padding: 14px; }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-button, .ghost { appearance: none; cursor: pointer; border-radius: 12px; border:1px solid #30364a; padding: 10px 14px; color: var(--ink); background: #1a1f2b; font-weight: 600; }
-button.primary { background: linear-gradient(180deg, #49c38a, #2ea36f); border-color:#2a9a68; color:#07110c; box-shadow: 0 6px 20px rgba(66,184,131,.35); }
-button.warn { background: linear-gradient(180deg, #f5a623, #e68a00); border-color:#cf7a00; color:#0c0901; }
-button:disabled { opacity:.6; cursor:not-allowed; }
-input[type="file"]{ display:none; }
-label.file { border:1px dashed #384055; padding:10px 14px; border-radius:12px; color:#cfd7e6; cursor:pointer; }
-video, canvas, img { width: 100%; border-radius: 14px; border:1px solid #252a39; background: #0c0f15; }
-.hint { font-size: 12px; color: var(--muted); }
-.field { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px dashed #2a2f3f; }
-.field:last-child{ border-bottom: none; }
-.key { color: #aeb8cb; font-size: 12px; text-transform: uppercase; letter-spacing:.8px; }
-.val input, .val textarea { width: 100%; background: #0f121a; border:1px solid #2c3242; color:#e5ecfb; padding:10px 12px; border-radius:10px; font-size:14px; }
-textarea { min-height: 86px; }
-.progress { height: 10px; background:#12151e; border-radius: 999px; border:1px solid #262c3e; overflow: hidden; }
-.bar { height: 100%; width: 0%; background: linear-gradient(90deg, #49c38a, #75e0b0); transition: width .2s ease; }
-.pill { display:inline-flex; gap:8px; align-items:center; background:#111520; border:1px solid #2a3143; padding:8px 10px; border-radius:999px; font-size:12px; color:#bbc6da; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; }
-table { width:100%; border-collapse: collapse; border:1px solid #2b3145; }
-th, td { border-bottom:1px dashed #2b3145; padding:10px; text-align: left; font-size: 13px; }
-th { color:#cfe0ff; font-weight:700; background:#0f1320; position: sticky; top:0; }
-.count { font-size: 12px; color:#9fb0cc }
-.status { font-size:12px; color:#9fb0cc }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>名片掃描器｜多筆蒐集＋Excel 匯出（自動辨識版）</title>
+  <style>
+    :root { --bg:#0b0c10; --card:#15171c; --ink:#e9eef5; --muted:#9aa3b2; --accent:#42b883; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--ink); background: radial-gradient(1000px 700px at 70% -10%, #1b1f28 0%, var(--bg) 60%); }
+    header { position: sticky; top: 0; backdrop-filter: saturate(180%) blur(8px); background: rgba(13,14,18,.6); border-bottom: 1px solid #222531; padding: 12px 16px; z-index: 10; }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: .5px; }
+    main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 1100px){ .grid { grid-template-columns: 5fr 4fr; } }
+    .card { background: var(--card); border:1px solid #232633; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+    .card h2 { margin:0 0 8px 0; font-size: 16px; color: #dfe6f3; letter-spacing: .4px; }
+    .card .inner { padding: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button, .ghost { appearance: none; cursor: pointer; border-radius: 12px; border:1px solid #30364a; padding: 10px 14px; color: var(--ink); background: #1a1f2b; font-weight: 600; }
+    button.primary { background: linear-gradient(180deg, #49c38a, #2ea36f); border-color:#2a9a68; color:#07110c; box-shadow: 0 6px 20px rgba(66,184,131,.35); }
+    button.warn { background: linear-gradient(180deg, #f5a623, #e68a00); border-color:#cf7a00; color:#0c0901; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    input[type="file"]{ display:none; }
+    label.file { border:1px dashed #384055; padding:10px 14px; border-radius:12px; color:#cfd7e6; cursor:pointer; }
+    label.file.disabled { opacity:.6; pointer-events:none; cursor:not-allowed; }
+    video, canvas, img { width: 100%; border-radius: 14px; border:1px solid #252a39; background: #0c0f15; }
+    .hint { font-size: 12px; color: var(--muted); }
+    .field { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px dashed #2a2f3f; }
+    .field:last-child{ border-bottom: none; }
+    .key { color: #aeb8cb; font-size: 12px; text-transform: uppercase; letter-spacing:.8px; }
+    .val input, .val textarea { width: 100%; background: #0f121a; border:1px solid #2c3242; color:#e5ecfb; padding:10px 12px; border-radius:10px; font-size:14px; }
+    textarea { min-height: 86px; }
+    .progress { height: 10px; background:#12151e; border-radius: 999px; border:1px solid #262c3e; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #49c38a, #75e0b0); transition: width .2s ease; }
+    .pill { display:inline-flex; gap:8px; align-items:center; background:#111520; border:1px solid #2a3143; padding:8px 10px; border-radius:999px; font-size:12px; color:#bbc6da; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; }
+    table { width:100%; border-collapse: collapse; border:1px solid #2b3145; }
+    th, td { border-bottom:1px dashed #2b3145; padding:10px; text-align: left; font-size: 13px; }
+    th { color:#cfe0ff; font-weight:700; background:#0f1320; position: sticky; top:0; }
+    .count { font-size: 12px; color:#9fb0cc }
+    .switch { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid #2a3143; border-radius:999px; background:#111520; color:#cfd7e6; }
+    .status { font-size:12px; color:#9fb0cc }
+  </style>
 </head>
 <body>
-<header>
-<h1>名片掃描器 · Web（多筆蒐集 → Excel 匯出）</h1>
-</header>
-<main>
-<div class="grid">
-<section class="card" id="cameraCard">
-<div class="inner">
-<h2>1) 取景或上傳名片</h2>
-<div class="row" style="margin-bottom:8px">
-<button id="openCam" class="ghost">開啟相機</button>
-<button id="snap" class="primary" disabled>拍照並辨識<\/button>
-<button id="resetCam" class="ghost">重置相機<\/button>
-<label class="file">
-<input type="file" accept="image/*" capture="environment" id="fileInput" />從相簿/相機上傳
-</label>
-<span class="hint">iPhone 需用 <b>HTTPS</b> 或 <b>localhost</b> 才能開相機；私密瀏覽可能會擋權限。</span>
-</div>
-<video id="video" playsinline autoplay muted><\/video>
-<div class="status" id="status">狀態：待機<\/div>
-<canvas id="canvas" style="display:none"></canvas>
-<img id="preview" alt="預覽" style="display:none"/>
-<div class="row" style="margin-top:8px">
-<span class="pill">OCR：<span class="mono">eng+chi_tra（fast）</span></span>
-<span class="pill">模式：<span class="mono">本機瀏覽器</span></span>
-</div>
+  <header>
+    <h1>名片掃描器 · Web（多筆蒐集 → Excel 匯出）</h1>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card" id="cameraCard">
+        <div class="inner">
+          <h2>1) 取景或上傳名片</h2>
+          <div class="row" style="margin-bottom:8px">
+            <button id="openCam" class="ghost">開啟相機</button>
+            <!-- 沒有拍照鍵，改用自動辨識或點影片一次辨識 -->
+            <label class="file">
+              <input type="file" accept="image/*" id="fileInput" />從相簿/相機上傳
+            </label>
+            <label class="switch"><input type="checkbox" id="autoMode"> 自動辨識</label>
+            <span class="hint">iPhone 需用 <b>HTTPS</b> 或 <b>localhost</b> 才能開相機。可直接「點影片」辨識一次。</span>
+          </div>
+          <video id="video" playsinline autoplay muted title="點一下影像可立即辨識"></video>
+          <div class="status" id="status">狀態：待機</div>
+          <canvas id="canvas" style="display:none"></canvas>
+          <img id="preview" alt="預覽" style="display:none"/>
+          <div class="row" style="margin-top:8px">
+            <span class="pill">OCR：<span class="mono">eng+chi_tra</span></span>
+            <span class="pill">模式：<span class="mono">本機瀏覽器</span></span>
+          </div>
+          <div class="progress" style="margin-top:8px"><div class="bar" id="progressBar"></div></div>
+          <div class="hint" style="margin-top:6px">小技巧：把名片放平、光線充足，盡量填滿畫面；失敗就改用相簿上傳。</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <h2>2) 本張結果（確認後加入清單）</h2>
+          <div class="field"><div class="key">姓名</div><div class="val"><input id="name" placeholder="例：王小明 / Anita Yao"/></div></div>
+          <div class="field"><div class="key">職稱</div><div class="val"><input id="title" placeholder="例：設計師 / Marketing Manager"/></div></div>
+          <div class="field"><div class="key">公司</div><div class="val"><input id="company" placeholder="例：矩設計股份有限公司"/></div></div>
+          <div class="field"><div class="key">Email</div><div class="val"><input id="email" placeholder="name@example.com"/></div></div>
+          <div class="field"><div class="key">電話</div><div class="val"><input id="phone" placeholder="例：0912-345-678 / (03)1234-5678#123"/></div></div>
+@@ -101,85 +102,121 @@
+          <button id="clearList" class="warn" disabled>清空清單</button>
+        </div>
+        <div style="max-height: 40vh; overflow:auto; border:1px solid #2b3145; border-radius:12px">
+          <table id="listTable">
+            <thead>
+              <tr><th>#</th><th>姓名</th><th>職稱</th><th>公司</th><th>Email</th><th>電話</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 外部函式庫：jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    // ===== DOM =====
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var preview = document.getElementById('preview');
+    var openCamBtn = document.getElementById('openCam');
+    var fileInput = document.getElementById('fileInput');
+    var fileLabel = document.querySelector('label.file');
+    var progressBar = document.getElementById('progressBar');
+    var statusEl = document.getElementById('status');
+    var autoMode = document.getElementById('autoMode');
+
+    var nameEl = document.getElementById('name');
+    var titleEl = document.getElementById('title');
+    var companyEl = document.getElementById('company');
+    var emailEl = document.getElementById('email');
+    var phoneEl = document.getElementById('phone');
+    var rawEl = document.getElementById('raw');
+
+    // Disable camera and album until OCR is ready
+    openCamBtn.disabled = true;
+    fileInput.disabled = true;
+    if(fileLabel) fileLabel.classList.add('disabled');
+
+    var addToListBtn = document.getElementById('addToList');
+    var clearFieldsBtn = document.getElementById('clearFields');
+
+    var exportXlsxBtn = document.getElementById('exportXlsx');
+    var exportCsvBtn = document.getElementById('exportCsv');
+    var clearListBtn = document.getElementById('clearList');
+
+    var listTableBody = document.querySelector('#listTable tbody');
+    var countLabel = document.getElementById('count');
+
+    var stream; var contacts = []; var scanning = false; var autoTimer = null; var ocrWorker = null;
+
+    function setProgress(p){ progressBar.style.width = (Math.max(0, Math.min(1,p))*100) + '%'; }
+    function setStatus(txt){ statusEl.textContent = '狀態：' + txt; }
+
+    async function getWorker(){
+      if(ocrWorker) return ocrWorker;
+      var createWorker = Tesseract.createWorker;
+      ocrWorker = await createWorker({ logger: function(m){ if(m.progress!=null) setProgress(m.progress); } });
+      await ocrWorker.loadLanguage('eng+chi_tra');
+      await ocrWorker.initialize('eng+chi_tra');
+      return ocrWorker;
+    }
+
+    async function preloadOCR(timeoutMs=15000){
+      var count = 3;
+      setProgress(0);
+      setStatus('初始化 OCR 引擎中（'+ count +'）');
+      var timer = setInterval(function(){
+        count--;
+        if(count>0){
+          setStatus('初始化 OCR 引擎中（'+ count +'）');
+        }else{
+          setStatus('初始化 OCR 引擎中…');
+        }
+      },1000);
+      try{
+        await Promise.race([
+          getWorker(),
+          new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('timeout')); }, timeoutMs); })
+        ]);
+        setStatus('載入 OCR 成功，請開始使用相機或相簿');
+        setProgress(0);
+        openCamBtn.disabled = false;
+        fileInput.disabled = false;
+        if(fileLabel) fileLabel.classList.remove('disabled');
+      }catch(e){
+        console.error(e);
+        setStatus('OCR 引擎載入失敗：' + (e && e.message ? e.message : e));
+      }finally{
+        clearInterval(timer);
+      }
+    }
+
+    async function openCamera(){
+      try {
+        if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+          alert('此瀏覽器不支援相機 API，請改用相簿上傳。');
+          return;
+        }
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+        video.srcObject = stream;
+        setStatus('相機已開啟');
+        if(autoMode.checked){ startAuto(); }
+      } catch(err){
+        alert('無法開啟相機：' + err.message + '\n建議：到 Safari 設定允許相機，或改用「從相簿上傳」。');
+        setStatus('開啟失敗');
+      }
+    }
+
+    function captureFromVideo(){
+      var vw = video.videoWidth, vh = video.videoHeight;
+      if(!vw || !vh){ return null; }
+      var targetW = Math.min(1600, vw), scale = targetW / vw, targetH = Math.round(vh * scale);
+      canvas.width = targetW; canvas.height = targetH;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, targetW, targetH);
+      var img = ctx.getImageData(0, 0, targetW, targetH);
+      var d = img.data;
+@@ -292,32 +329,36 @@
+
+    // 綁定
+    openCamBtn.addEventListener('click', openCamera);
+    autoMode.addEventListener('change', function(){ if(autoMode.checked){ startAuto(); } else { stopAuto(); } });
+    video.addEventListener('click', runOnce); // 點一下影像 → 立刻辨識一次
+
+    fileInput.addEventListener('change', async function(e){
+      var file = e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null; if(!file) return;
+      setProgress(0); preview.src = ''; preview.style.display='none';
+      try { var dataURL = await readAsDataURL(file); preview.src = dataURL; preview.style.display='block'; var text = await recognize(dataURL); var fields = extractFields(text); fillFields(fields); }
+      catch(e){ alert('辨識失敗：' + e.message); setStatus('辨識失敗'); }
+    });
+
+    document.getElementById('addToList').addEventListener('click', function(){
+      var rec = getCurrentRecord();
+      var empty = Object.values(rec).every(function(v){return !v});
+      if(empty){ alert('目前資料是空的，請先辨識或輸入。'); return; }
+      contacts.push(rec); refreshTable(); clearFields(); setStatus('已加入清單');
+    });
+
+    clearFieldsBtn.addEventListener('click', clearFields);
+    exportXlsxBtn.addEventListener('click', exportExcel);
+    exportCsvBtn.addEventListener('click', exportCSV);
+    clearListBtn.addEventListener('click', function(){ if(confirm('確定要清空清單嗎？')){ contacts=[]; refreshTable(); setStatus('清單已清空'); }});
+
+    preloadOCR(10000);
+
+    window.addEventListener('beforeunload', function(){
+      if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); }
+      if(ocrWorker && ocrWorker.terminate){ ocrWorker.terminate(); }
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+</body>
+</html>
