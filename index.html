@@ -188,7 +188,7 @@
         fileInput.disabled = false;
         if(fileLabel) fileLabel.classList.remove('disabled');
       }catch(e){
-        console.error(e);
+        console.error(e && e.message ? e.message : e);
         setStatus('OCR 引擎載入失敗：' + (e && e.message ? e.message : e));
       }finally{
         clearInterval(timer);
