@@ -1,0 +1,13 @@
+<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
+<button id="open">開相機</button>
+<video id="v" playsinline autoplay muted style="width:100%"></video>
+<script>
+document.getElementById('open').onclick = async () => {
+  try {
+    const s = await (navigator.mediaDevices?.getUserMedia
+      ? navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
+      : new Promise((res,rej)=>navigator.webkitGetUserMedia({video:true},res,rej)));
+    v.srcObject = s;
+  } catch (e) { alert('開相機失敗：' + e.message); }
+};
+</script>
